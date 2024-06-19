@@ -44,11 +44,11 @@
 								<thead>
 									<tr>
 										<th>No</th>
-										<th>Gambar</th>
 										<th>Kategori</th>
 										<th>Nama Barang</th>
 										<th>Deskripsi</th>
 										<th>Harga</th>
+										<th>Peramalan Bulan Berikutnya</th>
 										<th class="text-center">Action</th>
 									</tr>
 								</thead>
@@ -59,17 +59,27 @@
 									?>
 										<tr>
 											<td><?= $no++ ?></td>
-											<td>
-												<img style="width: 150px;" src="<?= base_url('asset/foto-produk/' . $value->gambar) ?>">
-
-											</td>
 											<td><?= $value->nama_kategori ?></td>
 											<td><?= $value->nama_produk ?></td>
 											<td><?= $value->keterangan ?></td>
 											<td>Rp. <?= number_format($value->harga)  ?></td>
+											<?php
+											//peramalan dibulan selanjutnya
+											$dt_var = $this->db->query("SELECT SUM(qty_keluar) as qty, id_produk, MONTH(tgl_keluar) as bulan FROM `produk_keluar` JOIN produk ON produk_keluar.id_produk_masuk=produk.id_produk WHERE id_produk='" . $value->id_produk . "' AND MONTH(tgl_keluar) < '6' GROUP BY id_produk, MONTH(tgl_keluar) ORDER BY MONTH(tgl_keluar) DESC LIMIT 3")->result();
+											$hasil = 0;
+											$bobot = 3;
+											$rekomendasi = 0;
 
+											foreach ($dt_var as $key => $item) {
+												$hasil += (($item->qty * $bobot--));
+											}
+											$hasil_forecast = $hasil / 6;
+											$rekomendasi = $hasil_forecast;
+
+											?>
+											<td>Peramalan Bulan Juni <span class="badge bg-danger"><?= round($hasil_forecast) ?> <?= $value->keterangan ?></span></td>
 											<td class="text-center"> <a href="<?= base_url('Gudang/cAnalisis/detail_peramalan/' . $value->id_produk) ?>" class="btn btn-app">
-													<i class="fas fa-info"></i> Peramalan
+													<i class="fas fa-info"></i>View Peramalan
 												</a> </td>
 										</tr>
 									<?php
@@ -79,11 +89,11 @@
 								<tfoot>
 									<tr>
 										<th>No</th>
-										<th>Gambar</th>
 										<th>Kategori</th>
 										<th>Nama Barang</th>
 										<th>Deskripsi</th>
 										<th>Harga</th>
+										<th>Peramalan Bulan Berikutnya</th>
 										<th class="text-center">Action</th>
 									</tr>
 								</tfoot>
